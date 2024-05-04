@@ -17,11 +17,22 @@ public class Quiz {
     private final int USERANSWER_INDEX;
     private final ArrayList<String> questionChoices;
     private String title;
-    private String suppliedQuestion;
+    private boolean isFinished = false;
+    private int result;
 
     Quiz(boolean caseInsensitive, HashMap<String, String> questionsAnswers,String title) {
         this(questionsAnswers,title);
         this.caseInsensitive = caseInsensitive;
+    }
+
+    public boolean getFinished(){
+        return this.isFinished;
+    }
+
+    public int getResult() {
+        if (this.isFinished)
+            return this.result;
+        return -1;
     }
 
     protected Quiz(HashMap<String, String> questionsAnswers,String title) {
@@ -49,10 +60,6 @@ public class Quiz {
 
     protected void addOptionalAnswer(String answer, String optionalAnswer) {
         ((ArrayList)this.qAnswersAndExpected.get(answer)).set(1, optionalAnswer);
-    }
-
-    protected void supplyBaseQuestion(String suppliedQuestion) {
-        this.suppliedQuestion = suppliedQuestion;
     }
 
     protected void setTitle(String title) {
@@ -126,7 +133,7 @@ public class Quiz {
                 ++answered;
             }
         }
-
+        this.isFinished = true;
         return this.results();
     }
 

@@ -13,5 +13,7 @@ public class Main {
         questionsanswers.put("really long question test something is broken","oops");
         Quiz testquiz = new Quiz(questionsanswers,"Coolest Quiz");
         testquiz.start();
+        if (testquiz.getFinished() == true){
+            int result = testquiz.getResult();
         }
-    }
+    }}
