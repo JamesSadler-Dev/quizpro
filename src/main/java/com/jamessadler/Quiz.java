@@ -41,7 +41,6 @@ public class Quiz {
     }
 
     public Quiz(HashMap<String, String> questionsAnswers,String title) {
-
         if (questionsAnswers == null) {
             throw new IllegalArgumentException("Quiz questions hashmap must not be null");
         }
