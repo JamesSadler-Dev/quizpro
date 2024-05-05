@@ -11,9 +11,9 @@ public class Quiz {
     private final HashMap<String, ArrayList<String>> qAnswersAndExpected;
     private boolean caseInsensitive;
     private int longestQuestion;
-    private final int OPT_EXPECTEDANSWER_INDEX;
-    private final int QUESTION_INDEX;
-    private final int USERANSWER_INDEX;
+    private final int QUESTION_INDEX = 0;
+    private final int OPT_ANSWER_INDEX = 1;
+    private final int USERANSWER_INDEX = 2;
     private final ArrayList<String> questionChoices;
     private String title;
     private boolean isFinished = false;
@@ -33,19 +33,16 @@ public class Quiz {
     }
 
     public void addOptionalAnswer(String answer, String optionalAnswer) {
-        this.qAnswersAndExpected.get(answer).set(1, optionalAnswer);
+        this.qAnswersAndExpected.get(answer).set(OPT_ANSWER_INDEX, optionalAnswer);
     }
 
     protected Quiz(HashMap<String, String> questionsAnswers,String title) {
-        this.qAnswersAndExpected = new HashMap();
+        this.qAnswersAndExpected = new HashMap<>();
         this.caseInsensitive = true;
         this.longestQuestion = 0;
-        this.OPT_EXPECTEDANSWER_INDEX = 1;
-        this.QUESTION_INDEX = 0;
-        this.USERANSWER_INDEX = 2;
-        this.questionChoices = new ArrayList();
+        this.questionChoices = new ArrayList<>();
         setTitle(title);
-        Iterator questions = questionsAnswers.keySet().iterator();
+        Iterator<String> questions = questionsAnswers.keySet().iterator();
 
         while(questions.hasNext()) {
             String question = (String)questions.next();
@@ -66,15 +63,13 @@ public class Quiz {
 
     private void addQuestionTo(String answer, String question) {
         this.questionChoices.add(answer);
-        this.qAnswersAndExpected.put(answer, new ArrayList());
-        this.qAnswersAndExpected.get(answer).add(0, question);
+        this.qAnswersAndExpected.put(answer, new ArrayList<>());
+        this.qAnswersAndExpected.get(answer).add(QUESTION_INDEX, question);
     }
 
     private void defaultOptionalAnswers() {
-        for (String key : this.qAnswersAndExpected.keySet()) {
-            this.qAnswersAndExpected.get(key).add(1, key);
-        }
-
+        for (String key : this.qAnswersAndExpected.keySet())
+            this.qAnswersAndExpected.get(key).add(OPT_ANSWER_INDEX, key);
     }
 
     private void askQ(String question, Scanner answers, String choice, int noAnswered) {
@@ -94,13 +89,12 @@ public class Quiz {
         fullQuestion.append(" ".repeat(Math.max(0, remainderQuestion + 1)));
         fullQuestion.append("Your answer: ");
         System.out.print(fullQuestion);
-        int optionalAnswerLength = ((this.qAnswersAndExpected.get(choice)).get(1)).length();
+        int optionalAnswerLength = ((this.qAnswersAndExpected.get(choice)).get(OPT_ANSWER_INDEX)).length();
         int maxAnswerLength = Math.max(choice.length(), optionalAnswerLength);
 
         String userAnswer;
-        for(userAnswer = answers.nextLine(); userAnswer.trim().isEmpty(); userAnswer = answers.nextLine()) {
+        for(userAnswer = answers.nextLine(); userAnswer.trim().isEmpty(); userAnswer = answers.nextLine())
             System.out.print("\ud83d\udeabMin length 1\ud83d\udeab  " + fullQuestion);
-        }
 
         while(userAnswer.trim().length() > maxAnswerLength) {
             String maxLength = String.format("\ud83d\udeabMax length %d\ud83d\udeab  ", maxAnswerLength);
@@ -108,13 +102,13 @@ public class Quiz {
             userAnswer = answers.nextLine();
         }
 
-        this.qAnswersAndExpected.get(choice).add(2, userAnswer);
+        this.qAnswersAndExpected.get(choice).add(USERANSWER_INDEX, userAnswer);
     }
 
     public int start() {
         Random randomChoice = new Random();
         Scanner usersAnswers = new Scanner(System.in);
-        ArrayList<String> questionsAnswered = new ArrayList();
+        ArrayList<String> questionsAnswered = new ArrayList<>();
         int answered = 0;
         System.out.println(this.title);
 
@@ -122,7 +116,7 @@ public class Quiz {
             String choice = this.questionChoices.get(randomChoice.nextInt(this.questionChoices.size()));
             if (!questionsAnswered.contains(choice)) {
                 questionsAnswered.add(choice);
-                String question = (this.qAnswersAndExpected.get(choice)).get(0);
+                String question = (this.qAnswersAndExpected.get(choice)).get(QUESTION_INDEX);
                 this.askQ(question, usersAnswers, choice, answered);
                 ++answered;
             }
@@ -145,19 +139,17 @@ public class Quiz {
         while(answers.hasNext()) {
             expectedAnswerUnprocessed = answers.next();
             expectedAnswerUnprocessed = expectedAnswerUnprocessed.trim();
-            String questionUnprocessed = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
-            userAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2);
-            if (expectedAnswerUnprocessed.length() > minExpectedansFormattedLength) {
+            String questionUnprocessed = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(QUESTION_INDEX);
+            userAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(USERANSWER_INDEX);
+
+            if (expectedAnswerUnprocessed.length() > minExpectedansFormattedLength)
                 minExpectedansFormattedLength = expectedAnswerUnprocessed.length() + 1;
-            }
 
-            if (questionUnprocessed.length() > minQuestionFormattedLength) {
+            if (questionUnprocessed.length() > minQuestionFormattedLength)
                 minQuestionFormattedLength = questionUnprocessed.length() + 1;
-            }
 
-            if (userAnswer.length() > minUseranswerFormattedLength) {
+            if (userAnswer.length() > minUseranswerFormattedLength)
                 minUseranswerFormattedLength = userAnswer.length() + 1;
-            }
         }
 
         answers = expectedAnswers.iterator();
@@ -169,17 +161,17 @@ public class Quiz {
         while(answers.hasNext()) {
             expectedAnswerUnprocessed = answers.next();
             StringBuilder expectedAnswerBuilder = new StringBuilder(expectedAnswerUnprocessed);
-            StringBuilder userAnswerBuilder = new StringBuilder((this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2));
-            userAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
+            StringBuilder userAnswerBuilder = new StringBuilder((this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(USERANSWER_INDEX));
+            userAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(QUESTION_INDEX);
             StringBuilder questionBuilder = new StringBuilder(userAnswer);
             StringBuilder answerStringFinal = new StringBuilder();
-            String optionalAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(1);
-            if (optionalAnswer == null) {
-                optionalAnswer = expectedAnswerUnprocessed;
-            }
-
+            String optionalAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(OPT_ANSWER_INDEX);
             String expectedAnswer;
             String answer;
+
+            if (optionalAnswer == null)
+                optionalAnswer = expectedAnswerUnprocessed;
+
             if (this.caseInsensitive) {
                 expectedAnswer = expectedAnswerUnprocessed.toUpperCase().trim();
                 answer = userAnswerBuilder.toString().toUpperCase().trim();
@@ -203,11 +195,11 @@ public class Quiz {
             answerStringFinal.append(userAnswerBuilder);
             if (!answer.contains(expectedAnswer) && !answer.contains(optionalAnswer)) {
                 answerStringFinal.append("|  ❌ Incorrect");
-                ++incorrect;
+                incorrect++;
                 System.out.println(answerStringFinal);
             } else {
                 answerStringFinal.append("|  ✅ Correct!");
-                ++correct;
+                correct++;
                 System.out.println(answerStringFinal);
             }
         }
