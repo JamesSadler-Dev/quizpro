@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
 
         HashMap<String,String> questionsanswers = new HashMap<>();
-        questionsanswers.put("what is my fav food","pizza");
+        //questionsanswers.put(" ","pizza");
         questionsanswers.put("who's the coolest coder","james");
         questionsanswers.put("here is a really long questionnnnnnnnnnnnnn ","oops");
         Quiz testquiz = new Quiz(questionsanswers,"Coolest Quiz");
