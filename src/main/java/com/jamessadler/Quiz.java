@@ -20,11 +20,6 @@ public class Quiz {
     private boolean isFinished = false;
     private int result;
 
-    Quiz(boolean caseInsensitive, HashMap<String, String> questionsAnswers,String title) {
-        this(questionsAnswers,title);
-        this.caseInsensitive = caseInsensitive;
-    }
-
     public boolean getFinished(){
         return this.isFinished;
     }
@@ -33,6 +28,13 @@ public class Quiz {
         if (this.isFinished)
             return this.result;
         return -1;
+    }
+    protected void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void addOptionalAnswer(String answer, String optionalAnswer) {
+        this.qAnswersAndExpected.get(answer).set(1, optionalAnswer);
     }
 
     protected Quiz(HashMap<String, String> questionsAnswers,String title) {
@@ -44,10 +46,10 @@ public class Quiz {
         this.USERANSWER_INDEX = 2;
         this.questionChoices = new ArrayList();
         setTitle(title);
-        Iterator var2 = questionsAnswers.keySet().iterator();
+        Iterator questions = questionsAnswers.keySet().iterator();
 
-        while(var2.hasNext()) {
-            String question = (String)var2.next();
+        while(questions.hasNext()) {
+            String question = (String)questions.next();
             this.addQuestionTo((String)questionsAnswers.get(question), question);
             int length = question.length();
             if (length > this.longestQuestion) {
@@ -58,26 +60,20 @@ public class Quiz {
         this.defaultOptionalAnswers();
     }
 
-    protected void addOptionalAnswer(String answer, String optionalAnswer) {
-        ((ArrayList)this.qAnswersAndExpected.get(answer)).set(1, optionalAnswer);
-    }
-
-    protected void setTitle(String title) {
-        this.title = title;
+    Quiz(boolean caseInsensitive, HashMap<String, String> questionsAnswers,String title) {
+        this(questionsAnswers,title);
+        this.caseInsensitive = caseInsensitive;
     }
 
     private void addQuestionTo(String answer, String question) {
         this.questionChoices.add(answer);
         this.qAnswersAndExpected.put(answer, new ArrayList());
-        ((ArrayList)this.qAnswersAndExpected.get(answer)).add(0, question);
+        this.qAnswersAndExpected.get(answer).add(0, question);
     }
 
     private void defaultOptionalAnswers() {
-        Iterator var1 = this.qAnswersAndExpected.keySet().iterator();
-
-        while(var1.hasNext()) {
-            String key = (String)var1.next();
-            ((ArrayList)this.qAnswersAndExpected.get(key)).add(1, key);
+        for (String key : this.qAnswersAndExpected.keySet()) {
+            this.qAnswersAndExpected.get(key).add(1, key);
         }
 
     }
@@ -99,7 +95,7 @@ public class Quiz {
         questionBuilder.append(" ".repeat(Math.max(0, remainderQuestion + 1)));
         fullQuestion.append("      Your answer: ");
         System.out.print(fullQuestion);
-        int optionalAnswerLength = ((String)((ArrayList)this.qAnswersAndExpected.get(choice)).get(1)).length();
+        int optionalAnswerLength = ((String)(this.qAnswersAndExpected.get(choice)).get(1)).length();
         int maxAnswerLength = Math.max(choice.length(), optionalAnswerLength);
 
         String userAnswer;
@@ -114,7 +110,7 @@ public class Quiz {
             userAnswer = answers.nextLine();
         }
 
-        ((ArrayList)this.qAnswersAndExpected.get(choice)).add(2, userAnswer);
+        this.qAnswersAndExpected.get(choice).add(2, userAnswer);
     }
 
     public double start() {
@@ -128,7 +124,7 @@ public class Quiz {
             String choice = (String)this.questionChoices.get(randomChoice.nextInt(this.questionChoices.size()));
             if (!questionsAnswered.contains(choice)) {
                 questionsAnswered.add(choice);
-                String question = (String)((ArrayList)this.qAnswersAndExpected.get(choice)).get(0);
+                String question = (String)(this.qAnswersAndExpected.get(choice)).get(0);
                 this.askQ(question, usersAnswers, choice, answered);
                 ++answered;
             }
@@ -140,22 +136,19 @@ public class Quiz {
     private double results() {
         double correct = 0.0;
         double incorrect = 0.0;
-        System.out.println("------------------------------------------------------------------------------------------------------------------");
-        System.out.println(this.title + " - Expected Answers:");
-        System.out.println();
         Set<String> expectedAnswers = this.qAnswersAndExpected.keySet();
         int minQuestionFormattedLength = 45;
         int minExpectedansFormattedLength = 18;
         int minUseranswerFormattedLength = 18;
-        Iterator var9 = expectedAnswers.iterator();
+        Iterator answers = expectedAnswers.iterator();
 
         String expectedAnswerUnprocessed;
         String userAnswer;
-        while(var9.hasNext()) {
-            expectedAnswerUnprocessed = (String)var9.next();
+        while(answers.hasNext()) {
+            expectedAnswerUnprocessed = (String)answers.next();
             expectedAnswerUnprocessed = expectedAnswerUnprocessed.trim();
-            String questionUnprocessed = (String)((ArrayList)this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
-            userAnswer = (String)((ArrayList)this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2);
+            String questionUnprocessed = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
+            userAnswer = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2);
             if (expectedAnswerUnprocessed.length() > minExpectedansFormattedLength) {
                 minExpectedansFormattedLength = expectedAnswerUnprocessed.length() + 1;
             }
@@ -169,17 +162,20 @@ public class Quiz {
             }
         }
 
-        var9 = expectedAnswers.iterator();
+        answers = expectedAnswers.iterator();
+        System.out.println("------------------------------------------------------------------------------------------------------------------");
+        System.out.println(this.title + " - Expected Answers:");
+        System.out.println();
 
         while(true) {
-            while(var9.hasNext()) {
-                expectedAnswerUnprocessed = (String)var9.next();
+            while(answers.hasNext()) {
+                expectedAnswerUnprocessed = (String)answers.next();
                 StringBuilder expectedAnswerBuilder = new StringBuilder(expectedAnswerUnprocessed);
-                StringBuilder userAnswerBuilder = new StringBuilder((String)((ArrayList)this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2));
-                userAnswer = (String)((ArrayList)this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
+                StringBuilder userAnswerBuilder = new StringBuilder((String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2));
+                userAnswer = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
                 StringBuilder questionBuilder = new StringBuilder(userAnswer);
                 StringBuilder answerStringFinal = new StringBuilder();
-                String optionalAnswer = (String)((ArrayList)this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(1);
+                String optionalAnswer = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(1);
                 if (optionalAnswer == null) {
                     optionalAnswer = expectedAnswerUnprocessed;
                 }
