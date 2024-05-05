@@ -28,15 +28,34 @@ public class Quiz {
             return this.result;
         return -1;
     }
-    protected void setTitle(String title) {
-        this.title = title;
+    public void setTitle(String title) {
+        if (!title.trim().isEmpty()) {
+            this.title = title;
+        } else {
+            throw new IllegalArgumentException("title length length must be greater than 0");
+        }
     }
 
     public void addOptionalAnswer(String answer, String optionalAnswer) {
         this.qAnswersAndExpected.get(answer).set(OPT_ANSWER_INDEX, optionalAnswer);
     }
 
-    protected Quiz(HashMap<String, String> questionsAnswers,String title) {
+    public Quiz(HashMap<String, String> questionsAnswers,String title) {
+
+        if (questionsAnswers == null) {
+            throw new IllegalArgumentException("Quiz questions hashmap must not be null");
+        }
+        if (questionsAnswers.isEmpty()){
+            throw new IllegalArgumentException("Quiz questions hashmap must not be empty");
+        }
+
+        for (String key: questionsAnswers.keySet()){
+            if (key.trim().isEmpty()){
+                throw new IllegalArgumentException("Question KEY cannot be empty");
+            } else if (questionsAnswers.get(key).trim().isEmpty()){
+                throw new IllegalArgumentException("Question VALUE must not be empty");
+            }
+        }
         this.qAnswersAndExpected = new HashMap<>();
         this.caseInsensitive = true;
         this.longestQuestion = 0;
@@ -56,7 +75,7 @@ public class Quiz {
         this.defaultOptionalAnswers();
     }
 
-    Quiz(boolean caseInsensitive, HashMap<String, String> questionsAnswers,String title) {
+    public Quiz(boolean caseInsensitive, HashMap<String, String> questionsAnswers,String title) {
         this(questionsAnswers,title);
         this.caseInsensitive = caseInsensitive;
     }
