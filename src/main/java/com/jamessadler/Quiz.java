@@ -1,6 +1,5 @@
 package com.jamessadler;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +49,7 @@ public class Quiz {
 
         while(questions.hasNext()) {
             String question = (String)questions.next();
-            this.addQuestionTo((String)questionsAnswers.get(question), question);
+            this.addQuestionTo(questionsAnswers.get(question), question);
             int length = question.length();
             if (length > this.longestQuestion) {
                 this.longestQuestion = length;
@@ -88,32 +87,31 @@ public class Quiz {
             fullQuestion.append(". ");
         }
 
-        StringBuilder questionBuilder = new StringBuilder(question);
+
         int remainderQuestion = this.longestQuestion - question.length();
-        fullQuestion.append(questionBuilder);
+        fullQuestion.append(question);
         fullQuestion.append("?      ");
-        questionBuilder.append(" ".repeat(Math.max(0, remainderQuestion + 1)));
-        fullQuestion.append("      Your answer: ");
+        fullQuestion.append(" ".repeat(Math.max(0, remainderQuestion + 1)));
+        fullQuestion.append("Your answer: ");
         System.out.print(fullQuestion);
-        int optionalAnswerLength = ((String)(this.qAnswersAndExpected.get(choice)).get(1)).length();
+        int optionalAnswerLength = ((this.qAnswersAndExpected.get(choice)).get(1)).length();
         int maxAnswerLength = Math.max(choice.length(), optionalAnswerLength);
 
         String userAnswer;
-        for(userAnswer = answers.nextLine(); userAnswer.trim().length() < 1; userAnswer = answers.nextLine()) {
+        for(userAnswer = answers.nextLine(); userAnswer.trim().isEmpty(); userAnswer = answers.nextLine()) {
             System.out.print("\ud83d\udeabMin length 1\ud83d\udeab  " + fullQuestion);
         }
 
         while(userAnswer.trim().length() > maxAnswerLength) {
-            PrintStream var10000 = System.out;
-            String var10001 = String.format("\ud83d\udeabMax length %d\ud83d\udeab  ", maxAnswerLength);
-            var10000.print(var10001 + fullQuestion);
+            String maxLength = String.format("\ud83d\udeabMax length %d\ud83d\udeab  ", maxAnswerLength);
+            System.out.print(maxLength + fullQuestion);
             userAnswer = answers.nextLine();
         }
 
         this.qAnswersAndExpected.get(choice).add(2, userAnswer);
     }
 
-    public double start() {
+    public int start() {
         Random randomChoice = new Random();
         Scanner usersAnswers = new Scanner(System.in);
         ArrayList<String> questionsAnswered = new ArrayList();
@@ -121,10 +119,10 @@ public class Quiz {
         System.out.println(this.title);
 
         while(answered < this.questionChoices.size()) {
-            String choice = (String)this.questionChoices.get(randomChoice.nextInt(this.questionChoices.size()));
+            String choice = this.questionChoices.get(randomChoice.nextInt(this.questionChoices.size()));
             if (!questionsAnswered.contains(choice)) {
                 questionsAnswered.add(choice);
-                String question = (String)(this.qAnswersAndExpected.get(choice)).get(0);
+                String question = (this.qAnswersAndExpected.get(choice)).get(0);
                 this.askQ(question, usersAnswers, choice, answered);
                 ++answered;
             }
@@ -133,22 +131,22 @@ public class Quiz {
         return this.results();
     }
 
-    private double results() {
+    private int results() {
         double correct = 0.0;
         double incorrect = 0.0;
         Set<String> expectedAnswers = this.qAnswersAndExpected.keySet();
         int minQuestionFormattedLength = 45;
         int minExpectedansFormattedLength = 18;
         int minUseranswerFormattedLength = 18;
-        Iterator answers = expectedAnswers.iterator();
+        Iterator<String> answers = expectedAnswers.iterator();
 
         String expectedAnswerUnprocessed;
         String userAnswer;
         while(answers.hasNext()) {
-            expectedAnswerUnprocessed = (String)answers.next();
+            expectedAnswerUnprocessed = answers.next();
             expectedAnswerUnprocessed = expectedAnswerUnprocessed.trim();
-            String questionUnprocessed = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
-            userAnswer = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2);
+            String questionUnprocessed = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
+            userAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2);
             if (expectedAnswerUnprocessed.length() > minExpectedansFormattedLength) {
                 minExpectedansFormattedLength = expectedAnswerUnprocessed.length() + 1;
             }
@@ -167,58 +165,58 @@ public class Quiz {
         System.out.println(this.title + " - Expected Answers:");
         System.out.println();
 
-        while(true) {
-            while(answers.hasNext()) {
-                expectedAnswerUnprocessed = (String)answers.next();
-                StringBuilder expectedAnswerBuilder = new StringBuilder(expectedAnswerUnprocessed);
-                StringBuilder userAnswerBuilder = new StringBuilder((String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2));
-                userAnswer = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
-                StringBuilder questionBuilder = new StringBuilder(userAnswer);
-                StringBuilder answerStringFinal = new StringBuilder();
-                String optionalAnswer = (String)(this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(1);
-                if (optionalAnswer == null) {
-                    optionalAnswer = expectedAnswerUnprocessed;
-                }
 
-                String expectedAnswer;
-                String answer;
-                if (this.caseInsensitive) {
-                    expectedAnswer = expectedAnswerUnprocessed.toUpperCase().trim();
-                    answer = userAnswerBuilder.toString().toUpperCase().trim();
-                    optionalAnswer = optionalAnswer.toUpperCase().trim();
-                } else {
-                    expectedAnswer = expectedAnswerUnprocessed.trim();
-                    answer = userAnswerBuilder.toString();
-                    optionalAnswer = optionalAnswer.trim();
-                }
-
-                int remainderQuestion = minQuestionFormattedLength - questionBuilder.length();
-                int remainderExpected = minExpectedansFormattedLength - expectedAnswerBuilder.length();
-                int remainderUserAnswer = minUseranswerFormattedLength - userAnswerBuilder.length();
-                questionBuilder.append(" ".repeat(Math.max(0, remainderQuestion)));
-                expectedAnswerBuilder.append(" ".repeat(Math.max(0, remainderExpected)));
-                userAnswerBuilder.append(" ".repeat(Math.max(0, remainderUserAnswer)));
-                answerStringFinal.append(questionBuilder);
-                answerStringFinal.append("|   Expected: ");
-                answerStringFinal.append(expectedAnswerBuilder);
-                answerStringFinal.append("|   Answered : ");
-                answerStringFinal.append(userAnswerBuilder);
-                if (!answer.contains(expectedAnswer) && !answer.contains(optionalAnswer)) {
-                    answerStringFinal.append("|  ❌ Incorrect");
-                    ++incorrect;
-                    System.out.println(answerStringFinal);
-                } else {
-                    answerStringFinal.append("|  ✅ Correct!");
-                    ++correct;
-                    System.out.println(answerStringFinal);
-                }
+        while(answers.hasNext()) {
+            expectedAnswerUnprocessed = answers.next();
+            StringBuilder expectedAnswerBuilder = new StringBuilder(expectedAnswerUnprocessed);
+            StringBuilder userAnswerBuilder = new StringBuilder((this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(2));
+            userAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(0);
+            StringBuilder questionBuilder = new StringBuilder(userAnswer);
+            StringBuilder answerStringFinal = new StringBuilder();
+            String optionalAnswer = (this.qAnswersAndExpected.get(expectedAnswerUnprocessed)).get(1);
+            if (optionalAnswer == null) {
+                optionalAnswer = expectedAnswerUnprocessed;
             }
 
-            double result = correct / (correct + incorrect) * 100.0;
-            System.out.println();
-            System.out.printf("Your score: %.0f%s \n", result, "%");
-            System.out.println();
-            return result;
+            String expectedAnswer;
+            String answer;
+            if (this.caseInsensitive) {
+                expectedAnswer = expectedAnswerUnprocessed.toUpperCase().trim();
+                answer = userAnswerBuilder.toString().toUpperCase().trim();
+                optionalAnswer = optionalAnswer.toUpperCase().trim();
+            } else {
+                expectedAnswer = expectedAnswerUnprocessed.trim();
+                answer = userAnswerBuilder.toString();
+                optionalAnswer = optionalAnswer.trim();
+            }
+
+            int remainderQuestion = minQuestionFormattedLength - questionBuilder.length();
+            int remainderExpected = minExpectedansFormattedLength - expectedAnswerBuilder.length();
+            int remainderUserAnswer = minUseranswerFormattedLength - userAnswerBuilder.length();
+            questionBuilder.append(" ".repeat(Math.max(0, remainderQuestion)));
+            expectedAnswerBuilder.append(" ".repeat(Math.max(0, remainderExpected)));
+            userAnswerBuilder.append(" ".repeat(Math.max(0, remainderUserAnswer)));
+            answerStringFinal.append(questionBuilder);
+            answerStringFinal.append("|   Expected: ");
+            answerStringFinal.append(expectedAnswerBuilder);
+            answerStringFinal.append("|   Answered : ");
+            answerStringFinal.append(userAnswerBuilder);
+            if (!answer.contains(expectedAnswer) && !answer.contains(optionalAnswer)) {
+                answerStringFinal.append("|  ❌ Incorrect");
+                ++incorrect;
+                System.out.println(answerStringFinal);
+            } else {
+                answerStringFinal.append("|  ✅ Correct!");
+                ++correct;
+                System.out.println(answerStringFinal);
+            }
         }
+
+        double result = correct / (correct + incorrect) * 100.0;
+        System.out.println();
+        System.out.printf("Your score: %.0f%s \n", result, "%");
+        System.out.println();
+        return (int) result;
     }
 }
+
