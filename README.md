@@ -8,9 +8,9 @@ Requires Maven build system
 <li>Optional case sensitivity feature.</li>
 <li>Ability to add optional answers to also be accepted.</li>
 </ul>
-
+<br>
 <hr>
-Public API:<br>
+<b>Public API:</b><br><br>
 <ul>
 <li>
     <b>Constructors</b>: pass in Hashmap<String,String> of questions and answers for your quiz as well as a title,
@@ -47,10 +47,11 @@ Build up your questions and answers HashMap programmatically then make a quiz.<b
 <br>
 <li>
     <b>Start </b> instance method: Start the quiz! This method returns the resulting score
-
+        
         int myScore = coolQuiz.start();
+        int finalScore = 
+        
 </li>
 </ul>
 <hr>
 
-To do list: add project to maven repository index
